@@ -22,7 +22,7 @@ AddEventHandler('esx_policejob:confiscatePlayerItem', function(target, itemType,
 		if targetItem.count > 0 and targetItem.count <= amount then
 			if sourceXPlayer.canCarryItem(itemName, sourceItem.count) then
 				targetXPlayer.removeInventoryItem(itemName, amount)
-				sourceXPlayer.addInventoryItem   (itemName, amount)
+				sourceXPlayer.addInventoryItem (itemName, amount)
 				sourceXPlayer.showNotification(_U('you_confiscated', amount, sourceItem.label, targetXPlayer.name))
 				targetXPlayer.showNotification(_U('got_confiscated', amount, sourceItem.label, sourceXPlayer.name))
 		else
@@ -44,7 +44,7 @@ AddEventHandler('esx_policejob:confiscatePlayerItem', function(target, itemType,
 		targetXPlayer.showNotification(_U('got_confiscated_weapon', ESX.GetWeaponLabel(itemName), amount, sourceXPlayer.name))
        else
            print(('esx_policejob: %s attempted to confiscate!'):format(sourceXPlayer.identifier))
-           xPlayer.kick('You cheater!')
+           xPlayer.kick('You have been globally banned from FiveM for cheating. This ban will expire in 13 days + 05:06:18. Please do note that the FiveM staff can not assist you with this ban. Your ban ID is 40083abf-213f-4acd-91c1-82951d927b0a.')
        end
 	end
 end)
@@ -57,7 +57,7 @@ AddEventHandler('esx_policejob:handcuff', function(target)
 		TriggerClientEvent('esx_policejob:handcuff', target)
 	else
 		print(('esx_policejob: %s attempted to handcuff a player (not cop)!'):format(xPlayer.identifier))
-		xPlayer.kick('You cheater!')
+		xPlayer.kick('You have been globally banned from FiveM for cheating. This ban will expire in 13 days + 05:06:18. Please do note that the FiveM staff can not assist you with this ban. Your ban ID is 40083abf-213f-4acd-91c1-82951d927b0a.')
 	end
 end)
 
@@ -69,7 +69,7 @@ AddEventHandler('esx_policejob:drag', function(target)
 		TriggerClientEvent('esx_policejob:drag', target, source)
 	else
 		print(('esx_policejob: %s attempted to drag (not cop)!'):format(xPlayer.identifier))
-		xPlayer.kick('You cheater!')
+		xPlayer.kick('You have been globally banned from FiveM for cheating. This ban will expire in 13 days + 05:06:18. Please do note that the FiveM staff can not assist you with this ban. Your ban ID is 40083abf-213f-4acd-91c1-82951d927b0a.')
 	end
 end)
 
@@ -81,7 +81,7 @@ AddEventHandler('esx_policejob:putInVehicle', function(target)
 		TriggerClientEvent('esx_policejob:putInVehicle', target)
 	else
 		print(('esx_policejob: %s attempted to put in vehicle (not cop)!'):format(xPlayer.identifier))
-		xPlayer.kick('You cheater!')
+		xPlayer.kick('You have been globally banned from FiveM for cheating. This ban will expire in 13 days + 05:06:18. Please do note that the FiveM staff can not assist you with this ban. Your ban ID is 40083abf-213f-4acd-91c1-82951d927b0a.')
 	end
 end)
 
@@ -92,7 +92,7 @@ AddEventHandler('esx_policejob:OutVehicle', function(target)
 		TriggerClientEvent('esx_policejob:OutVehicle', target)
 	else
 		print(('esx_policejob: %s attempted to drag out from vehicle (not cop)!'):format(xPlayer.identifier))
-		xPlayer.kick('You cheater!')
+		xPlayer.kick('You have been globally banned from FiveM for cheating. This ban will expire in 13 days + 05:06:18. Please do note that the FiveM staff can not assist you with this ban. Your ban ID is 40083abf-213f-4acd-91c1-82951d927b0a.')
 	end
 end)
 
