@@ -1,6 +1,7 @@
 ESX = nil
-
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+TriggerEvent('esx_phone:registerNumber', 'police', _U('alert_police'), true, true)
+TriggerEvent('esx_society:registerSociety', 'police', 'Police', 'society_police', 'society_police', 'society_police', {type = 'public'})
 
 if Config.EnableESXService then
 	if Config.MaxInService ~= -1 then
@@ -8,54 +9,43 @@ if Config.EnableESXService then
 	end
 end
 
-TriggerEvent('esx_phone:registerNumber', 'police', _U('alert_police'), true, true)
-TriggerEvent('esx_society:registerSociety', 'police', 'Police', 'society_police', 'society_police', 'society_police', {type = 'public'})
-
 RegisterNetEvent('esx_policejob:confiscatePlayerItem')
 AddEventHandler('esx_policejob:confiscatePlayerItem', function(target, itemType, itemName, amount)
 	local _source = source
 	local sourceXPlayer = ESX.GetPlayerFromId(_source)
 	local targetXPlayer = ESX.GetPlayerFromId(target)
 
-	if sourceXPlayer.job.name ~= 'police' then
-		print(('esx_policejob: %s attempted to confiscate!'):format(sourceXPlayer.identifier))
-		return
-	end
-
-	if itemType == 'item_standard' then
+	if sourceXPlayer.job.name == 'police' then
+	    if itemType == 'item_standard' then
 		local targetItem = targetXPlayer.getInventoryItem(itemName)
 		local sourceItem = sourceXPlayer.getInventoryItem(itemName)
-
-		-- does the target player have enough in their inventory?
 		if targetItem.count > 0 and targetItem.count <= amount then
-
-			-- can the player carry the said amount of x item?
 			if sourceXPlayer.canCarryItem(itemName, sourceItem.count) then
 				targetXPlayer.removeInventoryItem(itemName, amount)
 				sourceXPlayer.addInventoryItem   (itemName, amount)
 				sourceXPlayer.showNotification(_U('you_confiscated', amount, sourceItem.label, targetXPlayer.name))
 				targetXPlayer.showNotification(_U('got_confiscated', amount, sourceItem.label, sourceXPlayer.name))
-			else
-				sourceXPlayer.showNotification(_U('quantity_invalid'))
-			end
 		else
 			sourceXPlayer.showNotification(_U('quantity_invalid'))
 		end
-
+	else
+		sourceXPlayer.showNotification(_U('quantity_invalid'))
+	end
 	elseif itemType == 'item_account' then
 		targetXPlayer.removeAccountMoney(itemName, amount)
-		sourceXPlayer.addAccountMoney   (itemName, amount)
-
+		sourceXPlayer.addAccountMoney(itemName, amount)
 		sourceXPlayer.showNotification(_U('you_confiscated_account', amount, itemName, targetXPlayer.name))
 		targetXPlayer.showNotification(_U('got_confiscated_account', amount, itemName, sourceXPlayer.name))
-
 	elseif itemType == 'item_weapon' then
 		if amount == nil then amount = 0 end
 		targetXPlayer.removeWeapon(itemName, amount)
-		sourceXPlayer.addWeapon   (itemName, amount)
-
+		sourceXPlayer.addWeapon(itemName, amount)
 		sourceXPlayer.showNotification(_U('you_confiscated_weapon', ESX.GetWeaponLabel(itemName), targetXPlayer.name, amount))
 		targetXPlayer.showNotification(_U('got_confiscated_weapon', ESX.GetWeaponLabel(itemName), amount, sourceXPlayer.name))
+       else
+           print(('esx_policejob: %s attempted to confiscate!'):format(sourceXPlayer.identifier))
+           xPlayer.kick('You cheater!')
+       end
 	end
 end)
 
@@ -67,6 +57,7 @@ AddEventHandler('esx_policejob:handcuff', function(target)
 		TriggerClientEvent('esx_policejob:handcuff', target)
 	else
 		print(('esx_policejob: %s attempted to handcuff a player (not cop)!'):format(xPlayer.identifier))
+		xPlayer.kick('You cheater!')
 	end
 end)
 
@@ -78,6 +69,7 @@ AddEventHandler('esx_policejob:drag', function(target)
 		TriggerClientEvent('esx_policejob:drag', target, source)
 	else
 		print(('esx_policejob: %s attempted to drag (not cop)!'):format(xPlayer.identifier))
+		xPlayer.kick('You cheater!')
 	end
 end)
 
@@ -89,17 +81,18 @@ AddEventHandler('esx_policejob:putInVehicle', function(target)
 		TriggerClientEvent('esx_policejob:putInVehicle', target)
 	else
 		print(('esx_policejob: %s attempted to put in vehicle (not cop)!'):format(xPlayer.identifier))
+		xPlayer.kick('You cheater!')
 	end
 end)
 
 RegisterNetEvent('esx_policejob:OutVehicle')
 AddEventHandler('esx_policejob:OutVehicle', function(target)
 	local xPlayer = ESX.GetPlayerFromId(source)
-
 	if xPlayer.job.name == 'police' then
 		TriggerClientEvent('esx_policejob:OutVehicle', target)
 	else
 		print(('esx_policejob: %s attempted to drag out from vehicle (not cop)!'):format(xPlayer.identifier))
+		xPlayer.kick('You cheater!')
 	end
 end)
 
@@ -107,14 +100,9 @@ RegisterNetEvent('esx_policejob:getStockItem')
 AddEventHandler('esx_policejob:getStockItem', function(itemName, count)
 	local _source = source
 	local xPlayer = ESX.GetPlayerFromId(_source)
-
 	TriggerEvent('esx_addoninventory:getSharedInventory', 'society_police', function(inventory)
 		local inventoryItem = inventory.getItem(itemName)
-
-		-- is there enough in the society?
 		if count > 0 and inventoryItem.count >= count then
-
-			-- can the player carry the said amount of x item?
 			if xPlayer.canCarryItem(itemName, count) then
 				inventory.removeItem(itemName, count)
 				xPlayer.addInventoryItem(itemName, count)
@@ -132,11 +120,8 @@ RegisterNetEvent('esx_policejob:putStockItems')
 AddEventHandler('esx_policejob:putStockItems', function(itemName, count)
 	local xPlayer = ESX.GetPlayerFromId(source)
 	local sourceItem = xPlayer.getInventoryItem(itemName)
-
 	TriggerEvent('esx_addoninventory:getSharedInventory', 'society_police', function(inventory)
 		local inventoryItem = inventory.getItem(itemName)
-
-		-- does the player have enough of the item?
 		if sourceItem.count >= count and count > 0 then
 			xPlayer.removeInventoryItem(itemName, count)
 			inventory.addItem(itemName, count)
@@ -149,10 +134,7 @@ end)
 
 ESX.RegisterServerCallback('esx_policejob:getOtherPlayerData', function(source, cb, target, notify)
 	local xPlayer = ESX.GetPlayerFromId(target)
-
-	if notify then
-		xPlayer.showNotification(_U('being_searched'))
-	end
+	if notify then xPlayer.showNotification(_U('being_searched')) end
 
 	if xPlayer then
 		local data = {
@@ -167,7 +149,6 @@ ESX.RegisterServerCallback('esx_policejob:getOtherPlayerData', function(source, 
 		if Config.EnableESXIdentity then
 			data.dob = xPlayer.get('dateofbirth')
 			data.height = xPlayer.get('height')
-
 			if xPlayer.get('sex') == 'm' then data.sex = 'male' else data.sex = 'female' end
 		end
 
@@ -189,7 +170,7 @@ ESX.RegisterServerCallback('esx_policejob:getOtherPlayerData', function(source, 
 end)
 
 ESX.RegisterServerCallback('esx_policejob:getFineList', function(source, cb, category)
-	MySQL.Async.fetchAll('SELECT * FROM fine_types WHERE category = @category', {
+	MySQL.Async.fetchAll('SELECT label, amount, category FROM fine_types WHERE category = @category', {
 		['@category'] = category
 	}, function(fines)
 		cb(fines)
@@ -433,47 +414,8 @@ end)
 
 ESX.RegisterServerCallback('esx_policejob:getPlayerInventory', function(source, cb)
 	local xPlayer = ESX.GetPlayerFromId(source)
-	local items   = xPlayer.inventory
-
+	local items = xPlayer.inventory
 	cb({items = items})
-end)
-
-AddEventHandler('playerDropped', function()
-	-- Save the source in case we lose it (which happens a lot)
-	local playerId = source
-
-	-- Did the player ever join?
-	if playerId then
-		local xPlayer = ESX.GetPlayerFromId(playerId)
-
-		-- Is it worth telling all clients to refresh?
-		if xPlayer and xPlayer.job.name == 'police' then
-			Citizen.Wait(5000)
-			TriggerClientEvent('esx_policejob:updateBlip', -1)
-		end
-	end
-end)
-
-RegisterNetEvent('esx_policejob:spawned')
-AddEventHandler('esx_policejob:spawned', function()
-	local xPlayer = ESX.GetPlayerFromId(playerId)
-
-	if xPlayer and xPlayer.job.name == 'police' then
-		Citizen.Wait(5000)
-		TriggerClientEvent('esx_policejob:updateBlip', -1)
-	end
-end)
-
-RegisterNetEvent('esx_policejob:forceBlip')
-AddEventHandler('esx_policejob:forceBlip', function()
-	TriggerClientEvent('esx_policejob:updateBlip', -1)
-end)
-
-AddEventHandler('onResourceStart', function(resource)
-	if resource == GetCurrentResourceName() then
-		Citizen.Wait(5000)
-		TriggerClientEvent('esx_policejob:updateBlip', -1)
-	end
 end)
 
 AddEventHandler('onResourceStop', function(resource)
